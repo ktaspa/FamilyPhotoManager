@@ -8,6 +8,8 @@ import java.util.Date;
 import java.util.Scanner;
 
 public class main {
+    private static boolean isRunning = true;
+
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
 
@@ -18,12 +20,19 @@ public class main {
         String yearsInput = scanner.nextLine();
         String[] yearsArray = yearsInput.split(",");
 
+        System.out.println("Press 's' to stop the program at any time.");
+
         File sourceFolder = new File(sourceFolderPath);
         File[] files = sourceFolder.listFiles();
 
         if (files != null) {
             for (File file : files) {
                 if (file.isFile()) {
+                    if (!isRunning) {
+                        System.out.println("Program stopped by user.");
+                        break;
+                    }
+
                     String destinationFolderPath = getDestinationFolderPath(file, yearsArray);
                     File destinationFolder = new File(destinationFolderPath);
 
@@ -63,7 +72,7 @@ public class main {
             e.printStackTrace();
         }
 
-        // Check if year matches any specified years
+        // Check if the year matches any of the specified years
         for (String specifiedYear : yearsArray) {
             if (year.equals(specifiedYear.trim())) {
                 return destinationDirectoryPath + File.separator + year;
@@ -72,5 +81,9 @@ public class main {
 
         // If the year doesn't match any specified years, use a default folder
         return destinationDirectoryPath + File.separator + "Other";
+    }
+
+    public static void stopProgram() {
+        isRunning = false;
     }
 }
