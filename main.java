@@ -5,6 +5,8 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Scanner;
 
 public class main {
@@ -12,13 +14,12 @@ public class main {
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-
+        
         System.out.print("Enter the source folder path: ");
         String sourceFolderPath = scanner.nextLine();
 
-        System.out.print("Enter the years to sort the files into (comma-separated): ");
-        String yearsInput = scanner.nextLine();
-        String[] yearsArray = yearsInput.split(",");
+        System.out.print("Enter the destination folder path: ");
+        String destinationFolderPath = scanner.nextLine();
 
         System.out.println("Press 's' to stop the program at any time.");
 
@@ -26,6 +27,8 @@ public class main {
         File[] files = sourceFolder.listFiles();
 
         if (files != null) {
+            Set<String> yearsSet = new HashSet<>();
+
             for (File file : files) {
                 if (file.isFile()) {
                     if (!isRunning) {
@@ -33,15 +36,15 @@ public class main {
                         break;
                     }
 
-                    String destinationFolderPath = getDestinationFolderPath(file, yearsArray);
-                    File destinationFolder = new File(destinationFolderPath);
+                    String destinationSubfolderPath = getDestinationFolderPath(file, destinationFolderPath, yearsSet);
+                    File destinationSubfolder = new File(destinationSubfolderPath);
 
-                    if (!destinationFolder.exists()) {
-                        destinationFolder.mkdirs();
+                    if (!destinationSubfolder.exists()) {
+                        destinationSubfolder.mkdirs();
                     }
 
                     Path sourceFilePath = file.toPath();
-                    Path destinationFilePath = new File(destinationFolderPath, file.getName()).toPath();
+                    Path destinationFilePath = new File(destinationSubfolderPath, file.getName()).toPath();
 
                     try {
                         Files.move(sourceFilePath, destinationFilePath, StandardCopyOption.REPLACE_EXISTING);
@@ -52,15 +55,15 @@ public class main {
                     }
                 }
             }
+
+            // Print the unique years found
+            System.out.println("Unique years in the files: " + yearsSet);
         } else {
             System.out.println("No files found in the source folder.");
         }
-
-        scanner.close();
     }
 
-    public static String getDestinationFolderPath(File file, String[] yearsArray) {
-        String destinationDirectoryPath = "path/to/destination/directory";
+    public static String getDestinationFolderPath(File file, String destinationFolderPath, Set<String> yearsSet) {
         String year = "";
 
         try {
@@ -68,19 +71,15 @@ public class main {
             BasicFileAttributes fileAttributes = Files.readAttributes(filePath, BasicFileAttributes.class);
             Date creationDate = new Date(fileAttributes.creationTime().toMillis());
             year = new SimpleDateFormat("yyyy").format(creationDate);
+
+            // Add the year to the set
+            yearsSet.add(year);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        // Check if the year matches any of the specified years
-        for (String specifiedYear : yearsArray) {
-            if (year.equals(specifiedYear.trim())) {
-                return destinationDirectoryPath + File.separator + year;
-            }
-        }
-
-        // If the year doesn't match any specified years, use a default folder
-        return destinationDirectoryPath + File.separator + "Other";
+        // Create the destination folder path based on the year
+        return destinationFolderPath + File.separator + year;
     }
 
     public static void stopProgram() {
