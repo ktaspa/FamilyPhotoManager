@@ -9,7 +9,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Scanner;
 
-public class main {
+public class FileSorter {
     private static boolean isRunning = true;
 
     public static void main(String[] args) {
@@ -61,6 +61,8 @@ public class main {
         } else {
             System.out.println("No files found in the source folder.");
         }
+
+        scanner.close();
     }
 
     public static String getDestinationFolderPath(File file, String destinationFolderPath, Set<String> yearsSet) {
