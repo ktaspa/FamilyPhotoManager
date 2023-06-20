@@ -71,7 +71,7 @@ public class FileSorter {
         try {
             Path filePath = file.toPath();
             BasicFileAttributes fileAttributes = Files.readAttributes(filePath, BasicFileAttributes.class);
-            Date creationDate = new Date(fileAttributes.creationTime().toMillis());
+            Date creationDate = new Date(fileAttributes.lastModifiedTime().toMillis());
             year = new SimpleDateFormat("yyyy").format(creationDate);
 
             // Add the year to the set
